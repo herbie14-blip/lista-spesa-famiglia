@@ -73,19 +73,19 @@
         </div>
 
         <!-- Sezione per l'inserimento manuale -->
-        <div class="flex mb-6 bg-gray-700 p-3 rounded-2xl shadow-inner">
-            <input type="text" id="manual-item-input" class="flex-grow p-3 rounded-l-xl bg-gray-900 text-white placeholder-gray-500 border-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Aggiungi un nuovo articolo...">
-            <button id="add-manual-item-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-r-xl btn-main">Aggiungi</button>
+        <div class="flex mb-6 bg-gray-700 p-3 rounded-2xl shadow-inner flex-col sm:flex-row gap-2 sm:gap-0">
+            <input type="text" id="manual-item-input" class="flex-grow p-3 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-gray-900 text-white placeholder-gray-500 border-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Aggiungi un nuovo articolo...">
+            <button id="add-manual-item-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl sm:rounded-r-xl sm:rounded-l-none btn-main">Aggiungi</button>
         </div>
 
         <!-- Elenco articoli predefiniti con menu a tendina -->
         <div class="bg-gray-700 rounded-2xl p-4 mb-6 shadow-inner">
             <h2 class="text-2xl font-semibold mb-4">Scegli dalla lista</h2>
-            <div class="flex gap-2 items-center">
-                <select id="predefined-item-select" class="flex-grow p-3 rounded-xl bg-gray-900 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <div class="flex gap-2 items-center flex-col sm:flex-row">
+                <select id="predefined-item-select" class="flex-grow p-3 rounded-xl bg-gray-900 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500 w-full">
                     <option value="" disabled selected>Seleziona un articolo...</option>
                 </select>
-                <button id="add-predefined-item-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl btn-main">Aggiungi</button>
+                <button id="add-predefined-item-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl btn-main w-full sm:w-auto">Aggiungi</button>
             </div>
         </div>
 
