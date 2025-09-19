@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista spesa famiglia Bonatti</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librerie per il PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1f2937, #4b5563);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        .btn-main {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .item-list-btn {
+            @apply flex-grow p-3 m-1 rounded-lg text-sm md:text-base transition-all duration-200 ease-in-out transform hover:scale-105 hover:bg-opacity-90;
+        }
+        /* Stili per la lista */
+        .list-item {
+            animation: fadeIn 0.5s ease-out;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .item-checked {
+            text-decoration: line-through;
+            color: #9ca3af;
+            transform: translateX(10px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-once {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <!-- Container principale -->
+    <div class="container bg-gray-800 p-6 rounded-3xl shadow-2xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-yellow-400">
+            Lista spesa famiglia Bonatti
+        </h1>
+        <p class="text-center text-sm mb-4 text-gray-400">ID Lista: <span id="user-id" class="font-mono text-gray-300"></span></p>
+
+        <!-- Sezione per la lista della spesa -->
+        <div id="list-to-export" class="bg-gray-700 rounded-2xl p-4 mb-6 shadow-inner">
+            <h2 class="text-2xl font-semibold mb-4">La tua lista</h2>
+            <ul id="shopping-list" class="space-y-3">
+                <!-- Gli elementi della lista verranno aggiunti qui dinamicamente -->
+            </ul>
+        </div>
+
+        <!-- Sezione per l'inserimento manuale -->
+        <div class="flex mb-6 bg-gray-700 p-3 rounded-2xl shadow-inner">
+            <input type="text" id="manual-item-input" class="flex-grow p-3 rounded-l-xl bg-gray-900 text-white placeholder-gray-500 border-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Aggiungi un nuovo articolo...">
+            <button id="add-manual-item-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-r-xl btn-main">Aggiungi</button>
+        </div>
+
+        <!-- Elenco articoli predefiniti con menu a tendina -->
+        <div class="bg-gray-700 rounded-2xl p-4 mb-6 shadow-inner">
+            <h2 class="text-2xl font-semibold mb-4">Scegli dalla lista</h2>
+            <div class="flex gap-2 items-center">
+                <select id="predefined-item-select" class="flex-grow p-3 rounded-xl bg-gray-900 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="" disabled selected>Seleziona un articolo...</option>
+                </select>
+                <button id="add-predefined-item-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl btn-main">Aggiungi</button>
+            </div>
+        </div>
+
+        <!-- Sezione volantini -->
+        <div class="bg-gray-700 rounded-2xl p-4 mb-6 shadow-inner">
+            <h2 class="text-2xl font-semibold mb-4">Volantini</h2>
+            <div class="flex justify-between gap-4 flex-wrap">
+                <a href="https://www.pennymarket.it/volantino/volantino-settimanale" target="_blank" class="flex-1 text-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl btn-main min-w-[120px]">Penny Market</a>
+                <a href="https://www.migross.it/volantino" target="_blank" class="flex-1 text-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl btn-main min-w-[120px]">Migross</a>
+                <a href="https://www.conad.it/volantini" target="_blank" class="flex-1 text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 rounded-xl btn-main min-w-[120px]">Conad</a>
+            </div>
+        </div>
+        
+        <!-- Pulsante Esporta PDF -->
+        <div class="flex justify-center mt-6">
+            <button id="export-pdf-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl btn-main w-full">Esporta in PDF</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+        import { getFirestore, doc, collection, query, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+        setLogLevel('Debug');
+
+        // Variabili globali fornite dall'ambiente
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Inizializza Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userId = null;
+        let isAuthReady = false;
+
+        const manualItemInput = document.getElementById('manual-item-input');
+        const addManualItemBtn = document.getElementById('add-manual-item-btn');
+        const shoppingListUl = document.getElementById('shopping-list');
+        const predefinedSelect = document.getElementById('predefined-item-select');
+        const addPredefinedItemBtn = document.getElementById('add-predefined-item-btn');
+        const userIdSpan = document.getElementById('user-id');
+        const exportPdfBtn = document.getElementById('export-pdf-btn');
+
+        // Elenco dettagliato degli articoli raggruppati per categoria
+        const categorizedItems = {
+            "Frutta e Verdura": ["Mele", "Banane", "Insalata", "Patate", "Pomodori"],
+            "Latticini e Uova": ["Latte", "Uova", "Yogurt", "Formaggio"],
+            "Panetteria": ["Pane", "Focaccia", "Grissini"],
+            "Cereali e Pasta": ["Pasta", "Riso", "Farina", "Couscous"],
+            "Snack e Dolci": ["Biscotti", "Cioccolato", "Patatine", "Caramelle"],
+            "Bevande": ["Acqua", "Succo di frutta", "Bibite gassate", "Vino"],
+            "Carne e Pesce": ["Carne", "Pesce", "Salumi", "Prosciutto"],
+            "Oli e Condimenti": ["Olio", "Sale", "Zucchero", "Aceto"],
+            "Igiene e Casa": ["Carta igienica", "Detersivo", "Sapone", "Shampoo", "Denti"]
+        };
+
+        // Funzione per generare il menu a tendina
+        function createPredefinedSelectMenu() {
+            for (const category in categorizedItems) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = category;
+                categorizedItems[category].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    optgroup.appendChild(option);
+                });
+                predefinedSelect.appendChild(optgroup);
+            }
+        }
+
+        // Aggiungi un articolo alla lista Firestore
+        async function addItem(name) {
+            if (!name.trim() || !userId) return;
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/public/data/shopping_list`), {
+                    name: name,
+                    completed: false,
+                    timestamp: new Date()
+                });
+                manualItemInput.value = '';
+                predefinedSelect.value = ''; // Resetta il menu a tendina
+            } catch (e) {
+                console.error("Errore nell'aggiungere il documento: ", e);
+            }
+        }
+
+        // Renderizza la lista della spesa dal database
+        function renderList(items) {
+            shoppingListUl.innerHTML = ''; // Pulisce la lista esistente
+            if (items.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = "La lista è vuota. Aggiungi qualcosa!";
+                emptyMsg.className = "text-center text-gray-400 italic";
+                shoppingListUl.appendChild(emptyMsg);
+            }
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = `list-item flex items-center justify-between p-3 rounded-xl bg-gray-900 shadow-lg`;
+                
+                const itemText = document.createElement('span');
+                itemText.textContent = item.name;
+                itemText.className = `flex-grow text-lg ${item.completed ? 'item-checked' : 'text-white'}`;
+                
+                // Pulsanti per le azioni
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'flex space-x-2';
+
+                const completeBtn = document.createElement('button');
+                completeBtn.textContent = '✅'; // Emoji per l'icona
+                completeBtn.className = 'text-xl p-1 rounded-full hover:bg-green-600 transition-colors';
+                completeBtn.onclick = async () => {
+                    try {
+                        await updateDoc(doc(db, `artifacts/${appId}/public/data/shopping_list`, item.id), {
+                            completed: !item.completed
+                        });
+                    } catch (e) {
+                        console.error("Errore nell'aggiornare il documento: ", e);
+                    }
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '🗑️'; // Emoji per l'icona
+                deleteBtn.className = 'text-xl p-1 rounded-full hover:bg-red-600 transition-colors';
+                deleteBtn.onclick = async () => {
+                    try {
+                        await deleteDoc(doc(db, `artifacts/${appId}/public/data/shopping_list`, item.id));
+                    } catch (e) {
+                        console.error("Errore nell'eliminare il documento: ", e);
+                    }
+                };
+
+                li.appendChild(itemText);
+                actionsDiv.appendChild(completeBtn);
+                actionsDiv.appendChild(deleteBtn);
+                li.appendChild(actionsDiv);
+                shoppingListUl.appendChild(li);
+            });
+        }
+
+        // Funzione per esportare la lista in PDF
+        async function exportToPdf() {
+            const container = document.getElementById('list-to-export');
+            exportPdfBtn.disabled = true;
+            exportPdfBtn.textContent = 'Generazione PDF in corso...';
+
+            // Usare una funzione del browser per la stampa
+            window.print();
+
+            exportPdfBtn.disabled = false;
+            exportPdfBtn.textContent = 'Esporta in PDF';
+        }
+
+        // Ascoltatori di eventi
+        addManualItemBtn.addEventListener('click', () => {
+            addItem(manualItemInput.value);
+        });
+
+        manualItemInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addItem(manualItemInput.value);
+            }
+        });
+
+        addPredefinedItemBtn.addEventListener('click', () => {
+            const selectedItem = predefinedSelect.value;
+            if (selectedItem) {
+                addItem(selectedItem);
+            }
+        });
+
+        exportPdfBtn.addEventListener('click', exportToPdf);
+
+        // Autenticazione e ascolto in tempo reale del database
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                isAuthReady = true;
+                userIdSpan.textContent = userId;
+                
+                const q = query(collection(db, `artifacts/${appId}/public/data/shopping_list`));
+                onSnapshot(q, (querySnapshot) => {
+                    const items = [];
+                    querySnapshot.forEach((doc) => {
+                        items.push({ id: doc.id, ...doc.data() });
+                    });
+                    items.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate()); // Ordina per data
+                    renderList(items);
+                });
+            } else {
+                console.log("Nessun utente autenticato, autenticazione in corso...");
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Errore di autenticazione:", error);
+                }
+            }
+        });
+
+        // Genera il menu a tendina all'avvio
+        createPredefinedSelectMenu();
+    </script>
+</body>
+</html>
