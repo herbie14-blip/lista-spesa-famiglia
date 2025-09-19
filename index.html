@@ -66,7 +66,7 @@
 
         <!-- Sezione per la lista della spesa -->
         <div id="list-to-export" class="bg-gray-700 rounded-2xl p-4 mb-6 shadow-inner">
-            <h2 class="text-2xl font-semibold mb-4">La tua spesa</h2>
+            <h2 class="text-2xl font-semibold mb-4">La tua lista</h2>
             <ul id="shopping-list" class="space-y-3">
                 <!-- Gli elementi della lista verranno aggiunti qui dinamicamente -->
             </ul>
@@ -74,18 +74,18 @@
 
         <!-- Sezione per l'inserimento manuale -->
         <div class="flex mb-6 bg-gray-700 p-3 rounded-2xl shadow-inner flex-col sm:flex-row gap-2 sm:gap-0">
-            <input type="text" id="manual-item-input" class="flex-grow p-3 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-gray-900 text-white placeholder-gray-500 border-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Aggiungi un nuovo articolo..." disabled>
-            <button id="add-manual-item-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl sm:rounded-r-xl sm:rounded-l-none btn-main" disabled>Aggiungi</button>
+            <input type="text" id="manual-item-input" class="flex-grow p-3 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-gray-900 text-white placeholder-gray-500 border-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Aggiungi un nuovo articolo...">
+            <button id="add-manual-item-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl sm:rounded-r-xl sm:rounded-l-none btn-main">Aggiungi</button>
         </div>
 
         <!-- Elenco articoli predefiniti con menu a tendina -->
         <div class="bg-gray-700 rounded-2xl p-4 mb-6 shadow-inner">
             <h2 class="text-2xl font-semibold mb-4">Scegli dalla lista</h2>
             <div class="flex gap-2 items-center flex-col sm:flex-row">
-                <select id="predefined-item-select" class="flex-grow p-3 rounded-xl bg-gray-900 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500 w-full" disabled>
-                    <option value="" disabled selected>Caricamento articoli...</option>
+                <select id="predefined-item-select" class="flex-grow p-3 rounded-xl bg-gray-900 text-white border-none focus:outline-none focus:ring-2 focus:ring-purple-500 w-full">
+                    <option value="" disabled selected>Seleziona un articolo...</option>
                 </select>
-                <button id="add-predefined-item-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl btn-main w-full sm:w-auto" disabled>Aggiungi</button>
+                <button id="add-predefined-item-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl btn-main w-full sm:w-auto">Aggiungi</button>
             </div>
         </div>
 
@@ -128,25 +128,20 @@
 
         // Elenco dettagliato degli articoli raggruppati per categoria
         const categorizedItems = {
-            "Frutta e Verdura": ["Mele", "Banane", "Insalata", "Patate", "Pomodori", "Zucchine", "Cetrioli", "Carote", "Arance", "Limoni", "Cipolle", "Aglio", "Peperoni", "Melanzane", "Uva"],
-            "Latticini e Uova": ["Latte", "Uova", "Yogurt", "Formaggio", "Burro", "Ricotta", "Mozzarella", "Panna", "Mascarpone", "Stracchino"],
-            "Panetteria": ["Pane", "Focaccia", "Grissini", "Pizza", "Brioche", "Pancarré", "Taralli", "Piadina"],
-            "Cereali e Pasta": ["Pasta", "Riso", "Farina", "Couscous", "Gnocchi", "Cereali", "Avena", "Granola", "Legumi secchi", "Lenticchie", "Fagioli"],
-            "Carne e Pesce": ["Pollo", "Manzo", "Maiale", "Salumi", "Prosciutto cotto", "Prosciutto crudo", "Salsiccia", "Tonno in scatola", "Salmone", "Merluzzo", "Gamberi", "Acciughe"],
-            "Snack e Dolci": ["Biscotti", "Cioccolato", "Patatine", "Caramelle", "Gelato", "Torte", "Merendine", "Snack salati", "Ciambelle", "Pistacchi", "Nocciole", "Mandorle"],
-            "Bevande": ["Acqua", "Succo di frutta", "Bibite gassate", "Vino", "Birra", "Caffè", "Tè", "Latte di soia", "Latte di mandorla"],
-            "Oli e Condimenti": ["Olio", "Sale", "Zucchero", "Aceto", "Salsa di pomodoro", "Maionese", "Ketchup", "Senape", "Spezie", "Basilico", "Origano"],
-            "Igiene e Casa": ["Carta igienica", "Detersivo per piatti", "Sapone", "Shampoo", "Bagnoschiuma", "Dentifricio", "Spazzolino", "Ammorbidente", "Tovaglioli", "Sacchi per spazzatura", "Candele"],
-            "Surgelati": ["Patatine fritte", "Piselli", "Spinaci", "Verdure miste", "Pizza surgelata", "Gelato"],
-            "Conserve e Vasetti": ["Tonno", "Fagioli in scatola", "Pelati", "Mais", "Sottaceti", "Marmellata", "Miele"],
-            "Altro": ["Cibo per animali", "Pile", "Fazzoletti", "Fiori", "Riviste", "Farmaci da banco"]
+            "Frutta e Verdura": ["Mele", "Banane", "Insalata", "Patate", "Pomodori"],
+            "Latticini e Uova": ["Latte", "Uova", "Yogurt", "Formaggio"],
+            "Panetteria": ["Pane", "Focaccia", "Grissini"],
+            "Cereali e Pasta": ["Pasta", "Riso", "Farina", "Couscous"],
+            "Snack e Dolci": ["Biscotti", "Cioccolato", "Patatine", "Caramelle"],
+            "Bevande": ["Acqua", "Succo di frutta", "Bibite gassate", "Vino"],
+            "Carne e Pesce": ["Carne", "Pesce", "Salumi", "Prosciutto"],
+            "Oli e Condimenti": ["Olio", "Sale", "Zucchero", "Aceto"],
+            "Igiene e Casa": ["Carta igienica", "Detersivo", "Sapone", "Shampoo", "Denti"]
         };
 
         // Funzione per generare il menu a tendina
         function createPredefinedSelectMenu() {
             const predefinedSelect = document.getElementById('predefined-item-select');
-            // Pulisce il menu prima di ricrearlo
-            predefinedSelect.innerHTML = '<option value="" disabled selected>Seleziona un articolo...</option>';
             for (const category in categorizedItems) {
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = category;
@@ -160,30 +155,9 @@
             }
         }
 
-        // Funzione per abilitare/disabilitare gli elementi dell'interfaccia utente
-        function toggleUIState(isEnabled) {
-            document.getElementById('manual-item-input').disabled = !isEnabled;
-            document.getElementById('add-manual-item-btn').disabled = !isEnabled;
-            document.getElementById('predefined-item-select').disabled = !isEnabled;
-            document.getElementById('add-predefined-item-btn').disabled = !isEnabled;
-            
-            if (isEnabled) {
-                document.getElementById('predefined-item-select').querySelector('option[disabled]').textContent = 'Seleziona un articolo...';
-                document.getElementById('add-manual-item-btn').textContent = 'Aggiungi';
-                document.getElementById('add-predefined-item-btn').textContent = 'Aggiungi';
-            } else {
-                document.getElementById('predefined-item-select').querySelector('option[disabled]').textContent = 'Caricamento articoli...';
-                document.getElementById('add-manual-item-btn').textContent = 'Connessione...';
-                document.getElementById('add-predefined-item-btn').textContent = 'Connessione...';
-            }
-        }
-
         // Aggiungi un articolo alla lista Firestore
         async function addItem(name) {
-            if (!name.trim() || !isAuthReady) {
-                console.log("Non è possibile aggiungere l'articolo. L'input è vuoto o l'autenticazione non è pronta.");
-                return;
-            }
+            if (!name.trim() || !userId) return;
             try {
                 await addDoc(collection(db, `artifacts/${appId}/public/data/shopping_list`), {
                     name: name,
@@ -223,7 +197,6 @@
                 completeBtn.textContent = '✅'; // Emoji per l'icona
                 completeBtn.className = 'text-xl p-1 rounded-full hover:bg-green-600 transition-colors';
                 completeBtn.onclick = async () => {
-                    if (!isAuthReady) return;
                     try {
                         await updateDoc(doc(db, `artifacts/${appId}/public/data/shopping_list`, item.id), {
                             completed: !item.completed
@@ -237,7 +210,6 @@
                 deleteBtn.textContent = '🗑️'; // Emoji per l'icona
                 deleteBtn.className = 'text-xl p-1 rounded-full hover:bg-red-600 transition-colors';
                 deleteBtn.onclick = async () => {
-                    if (!isAuthReady) return;
                     try {
                         await deleteDoc(doc(db, `artifacts/${appId}/public/data/shopping_list`, item.id));
                     } catch (e) {
@@ -255,16 +227,15 @@
 
         // Funzione per esportare la lista in PDF
         async function exportToPdf() {
-            const exportBtn = document.getElementById('export-pdf-btn');
-            const originalText = exportBtn.textContent;
-            exportBtn.disabled = true;
-            exportBtn.textContent = 'Generazione PDF in corso...';
+            const container = document.getElementById('list-to-export');
+            document.getElementById('export-pdf-btn').disabled = true;
+            document.getElementById('export-pdf-btn').textContent = 'Generazione PDF in corso...';
 
-            // Utilizza la funzione del browser per la stampa
+            // Usare una funzione del browser per la stampa
             window.print();
 
-            exportBtn.disabled = false;
-            exportBtn.textContent = originalText;
+            document.getElementById('export-pdf-btn').disabled = false;
+            document.getElementById('export-pdf-btn').textContent = 'Esporta in PDF';
         }
 
         // Ascoltatori di eventi
@@ -293,7 +264,7 @@
 
             // Genera il menu a tendina all'avvio
             createPredefinedSelectMenu();
-            toggleUIState(false); // Disabilita l'UI finché l'autenticazione non è pronta
+
         });
 
         // Autenticazione e ascolto in tempo reale del database
@@ -302,7 +273,6 @@
                 userId = user.uid;
                 isAuthReady = true;
                 document.getElementById('user-id').textContent = userId;
-                toggleUIState(true); // Abilita l'UI
                 
                 const q = query(collection(db, `artifacts/${appId}/public/data/shopping_list`));
                 onSnapshot(q, (querySnapshot) => {
@@ -310,8 +280,7 @@
                     querySnapshot.forEach((doc) => {
                         items.push({ id: doc.id, ...doc.data() });
                     });
-                    // Ordina gli elementi in base al timestamp per mantenere l'ordine di inserimento
-                    items.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate()); 
+                    items.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate()); // Ordina per data
                     renderList(items);
                 });
             } else {
