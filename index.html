@@ -126,14 +126,6 @@
         let userId = null;
         let isAuthReady = false;
 
-        const manualItemInput = document.getElementById('manual-item-input');
-        const addManualItemBtn = document.getElementById('add-manual-item-btn');
-        const shoppingListUl = document.getElementById('shopping-list');
-        const predefinedSelect = document.getElementById('predefined-item-select');
-        const addPredefinedItemBtn = document.getElementById('add-predefined-item-btn');
-        const userIdSpan = document.getElementById('user-id');
-        const exportPdfBtn = document.getElementById('export-pdf-btn');
-
         // Elenco dettagliato degli articoli raggruppati per categoria
         const categorizedItems = {
             "Frutta e Verdura": ["Mele", "Banane", "Insalata", "Patate", "Pomodori"],
@@ -149,6 +141,7 @@
 
         // Funzione per generare il menu a tendina
         function createPredefinedSelectMenu() {
+            const predefinedSelect = document.getElementById('predefined-item-select');
             for (const category in categorizedItems) {
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = category;
@@ -171,8 +164,8 @@
                     completed: false,
                     timestamp: new Date()
                 });
-                manualItemInput.value = '';
-                predefinedSelect.value = ''; // Resetta il menu a tendina
+                document.getElementById('manual-item-input').value = '';
+                document.getElementById('predefined-item-select').value = ''; // Resetta il menu a tendina
             } catch (e) {
                 console.error("Errore nell'aggiungere il documento: ", e);
             }
@@ -180,6 +173,7 @@
 
         // Renderizza la lista della spesa dal database
         function renderList(items) {
+            const shoppingListUl = document.getElementById('shopping-list');
             shoppingListUl.innerHTML = ''; // Pulisce la lista esistente
             if (items.length === 0) {
                 const emptyMsg = document.createElement('p');
@@ -234,42 +228,51 @@
         // Funzione per esportare la lista in PDF
         async function exportToPdf() {
             const container = document.getElementById('list-to-export');
-            exportPdfBtn.disabled = true;
-            exportPdfBtn.textContent = 'Generazione PDF in corso...';
+            document.getElementById('export-pdf-btn').disabled = true;
+            document.getElementById('export-pdf-btn').textContent = 'Generazione PDF in corso...';
 
             // Usare una funzione del browser per la stampa
             window.print();
 
-            exportPdfBtn.disabled = false;
-            exportPdfBtn.textContent = 'Esporta in PDF';
+            document.getElementById('export-pdf-btn').disabled = false;
+            document.getElementById('export-pdf-btn').textContent = 'Esporta in PDF';
         }
 
         // Ascoltatori di eventi
-        addManualItemBtn.addEventListener('click', () => {
-            addItem(manualItemInput.value);
-        });
-
-        manualItemInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('add-manual-item-btn').addEventListener('click', () => {
+                const manualItemInput = document.getElementById('manual-item-input');
                 addItem(manualItemInput.value);
-            }
-        });
+            });
 
-        addPredefinedItemBtn.addEventListener('click', () => {
-            const selectedItem = predefinedSelect.value;
-            if (selectedItem) {
-                addItem(selectedItem);
-            }
-        });
+            document.getElementById('manual-item-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const manualItemInput = document.getElementById('manual-item-input');
+                    addItem(manualItemInput.value);
+                }
+            });
 
-        exportPdfBtn.addEventListener('click', exportToPdf);
+            document.getElementById('add-predefined-item-btn').addEventListener('click', () => {
+                const predefinedSelect = document.getElementById('predefined-item-select');
+                const selectedItem = predefinedSelect.value;
+                if (selectedItem) {
+                    addItem(selectedItem);
+                }
+            });
+
+            document.getElementById('export-pdf-btn').addEventListener('click', exportToPdf);
+
+            // Genera il menu a tendina all'avvio
+            createPredefinedSelectMenu();
+
+        });
 
         // Autenticazione e ascolto in tempo reale del database
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid;
                 isAuthReady = true;
-                userIdSpan.textContent = userId;
+                document.getElementById('user-id').textContent = userId;
                 
                 const q = query(collection(db, `artifacts/${appId}/public/data/shopping_list`));
                 onSnapshot(q, (querySnapshot) => {
@@ -294,9 +297,6 @@
             }
         });
 
-        // Genera il menu a tendina all'avvio
-        createPredefinedSelectMenu();
     </script>
 </body>
 </html>
-
